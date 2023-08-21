@@ -87,10 +87,15 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                     setState(() {
                       _previousPage = currentIndex;
                       currentIndex = value;
+
                       if (currentIndex > _previousPage) {
+                        print("Going forward");
                             myAngle += 0.25;
                         myLittleAnle -= 0.25;
                       } else  {
+                        print("Going backward");
+                         myAngle -= 0.25;
+                        myLittleAnle += 0.25;
                         currentIndex = _previousPage;
                         pageController.jumpToPage(currentIndex);
                       }
