@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:ubenwa_kelvin/constants/color_constants.dart';
+import 'package:ubenwa_kelvin/constants/string_constants.dart';
 import 'package:ubenwa_kelvin/features/model/data/onboarding_data.dart';
 import 'package:ubenwa_kelvin/features/widget/custom_button.dart';
+import 'package:ubenwa_kelvin/features/widget/custom_round_baby_container.dart';
+import 'package:ubenwa_kelvin/features/widget/custom_scrol.dart';
 import 'package:ubenwa_kelvin/features/widget/loading_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -13,51 +17,52 @@ class OnboardingScreen extends StatefulWidget {
 
 class _OnboardingScreenState extends State<OnboardingScreen>
     with SingleTickerProviderStateMixin {
-  PageController controller = PageController();
+  PageController pageController = PageController();
   late AnimationController _animationController;
-   late Animation _animation;
-    bool isFav = false;
+  late Animation _animation;
+  bool isFav = false;
   late int currentIndex = 0;
-  bool shouldRotate = true;
   double myAngle = 0.0;
+  double myLittleAnle = 0.0;
+  int _previousPage = 0;
   double initialAngle = 0.0; // Store the initial angle
+  bool _isSwitching = false;
+
+
   @override
   void initState() {
     super.initState();
-
     _animationController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 500),
     );
 
-   _animation = TweenSequence(
-      <TweenSequenceItem<double>>[
-        TweenSequenceItem<double>(tween: Tween<double>(begin: 120,end: 140),
-         weight: 50),
-         TweenSequenceItem<double>(tween: Tween<double>(begin: 140,end: 120),
-         weight: 50),
-      ]
-    ).animate(_animationController);
-    controller.addListener(() {
+    _animation = TweenSequence(<TweenSequenceItem<double>>[
+      TweenSequenceItem<double>(
+          tween: Tween<double>(begin: 120, end: 80), weight: 50),
+      TweenSequenceItem<double>(
+          tween: Tween<double>(begin: 80, end: 120), weight: 50),
+    ]).animate(_animationController);
+    pageController.addListener(() {
       setState(() {
-        currentIndex = controller.page!.toInt();
+        currentIndex = pageController.page!.toInt();
       });
     });
 
     _animationController.addStatusListener((status) {
-        if(status == AnimationStatus.completed){        
-            isFav = true;
-     }
-     if(status == AnimationStatus.dismissed){
-     
-            isFav = false;       
-     }
-     });
+      if (status == AnimationStatus.completed) {
+        isFav = true;
+      }
+      if (status == AnimationStatus.dismissed) {
+        isFav = false;
+      }
+    });
   }
 
   @override
   void dispose() {
     _animationController.dispose();
+     pageController.dispose();
     super.dispose();
   }
 
@@ -75,18 +80,22 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                 child: Stack(
               children: [
                 PageView.builder(
+                  physics: DisableLeftScrollPhysics(),
                   itemCount: onboardingDatas.length,
-                  controller: controller,
+                  controller: pageController,
                   onPageChanged: (value) {
                     setState(() {
+                      _previousPage = currentIndex;
                       currentIndex = value;
-                      if (initialAngle == 0.0) {
-                        initialAngle = myAngle;
+                      if (currentIndex > _previousPage) {
+                            myAngle += 0.25;
+                        myLittleAnle -= 0.25;
+                      } else  {
+                        currentIndex = _previousPage;
+                        pageController.jumpToPage(currentIndex);
                       }
-                       print("initialAngle : $initialAngle");
-                       print("myAngle : $myAngle");
-                      myAngle += 0.25;
 
+                         _isSwitching = true; // this is for the opacity fading animation
                       if (myAngle == initialAngle) {
                         print("Circular image in initial angle!");
                       }
@@ -102,7 +111,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         SizedBox(
-                          height: 80.h,
+                          height: 20.h,
                         ),
                         Expanded(
                           child: Stack(
@@ -112,85 +121,114 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                                 top: 80,
                                 left: 85,
                                 child: AnimatedBuilder(
-                                  animation: _animationController,
-                                  builder: (context, _) {
-                                    return AnimatedRotation(
-                                      curve: Curves.easeInOut,
-                                      duration: const Duration(seconds: 2),
-                                      turns: myAngle,
-                                      child: CircleAvatar(
-                                        backgroundColor: Colors.transparent,
-                                        radius: _animation.value,
-                                        child: Stack(
-                                          clipBehavior: Clip.none,
-                                          children: [
-                                            Positioned(
-                                              bottom: -90,
-                                              left: (MediaQuery.of(context)
-                                                          .size
-                                                          .width /
-                                                      2) -
-                                                  135,
-                                              child: CircleAvatar(
-                                                radius: 40,
-                                                backgroundImage: AssetImage(
-                                                    data.babyBottomImage),
+                                    animation: _animationController,
+                                    builder: (context, _) {
+                                      return AnimatedRotation(
+                                        curve: Curves.easeInOut,
+                                        duration: const Duration(seconds: 2),
+                                        turns: myAngle,
+                                        child: CircleAvatar(
+                                          backgroundColor: Colors.transparent,
+                                          radius: _animation.value,
+                                          child: Stack(
+                                            clipBehavior: Clip.none,
+                                            children: [
+                                              Positioned(
+                                                bottom: -80,
+                                                left: (MediaQuery.of(context)
+                                                            .size
+                                                            .width /
+                                                        2) -
+                                                    120,
+                                                child: CustomBabyContainer(
+                                                  turns: myLittleAnle,
+                                                  image: babyDown,
+                                                  backgroundColor:
+                                                      currentIndex == 0
+                                                          ? kActiveOrangeColor
+                                                          : kBlushBabyColor,
+                                                ),
                                               ),
-                                            ),
-                                            Positioned(
-                                              top: -80,
-                                              left: (MediaQuery.of(context)
-                                                          .size
-                                                          .width /
-                                                      2) -
-                                                  135,
-                                              child: CircleAvatar(
-                                                radius: 40,
-                                                backgroundImage:
-                                                    AssetImage(data.babyTopImage),
+                                              Positioned(
+                                                top: -80,
+                                                left: (MediaQuery.of(context)
+                                                            .size
+                                                            .width /
+                                                        2) -
+                                                    120,
+                                                child: CustomBabyContainer(
+                                                  turns: myLittleAnle,
+                                                  image: babyTop,
+                                                  backgroundColor:
+                                                      currentIndex == 2
+                                                          ? kActiveOrangeColor
+                                                          : kHappyBabyColor,
+                                                ),
                                               ),
-                                            ),
-                                            Positioned(
-                                              top: 81,
-                                              left: (MediaQuery.of(context)
-                                                          .size
-                                                          .width /
-                                                      2) +
-                                                  35,
-                                              child: CircleAvatar(
-                                                radius: 40,
-                                                backgroundImage:
-                                                    AssetImage(data.babyRightImage),
+                                              Positioned(
+                                                top: 81,
+                                                left: (MediaQuery.of(context)
+                                                            .size
+                                                            .width /
+                                                        2) +
+                                                    30,
+                                                child: CustomBabyContainer(
+                                                  turns: myLittleAnle,
+                                                  image: babyRight,
+                                                  backgroundColor:
+                                                      currentIndex == 1
+                                                          ? kActiveBlueColor
+                                                          : kCryBabyColor,
+                                                ),
                                               ),
-                                            ),
-                                            Positioned(
-                                              top: 81,
-                                              left: -75,
-                                              child: CircleAvatar(
-                                                radius: 40,
-                                                backgroundImage:
-                                                    AssetImage(data.babyleftImage),
+                                              Positioned(
+                                                top: 81,
+                                                left: -75,
+                                                child: CustomBabyContainer(
+                                                  turns: myLittleAnle,
+                                                  image: babyLeft,
+                                                  backgroundColor:
+                                                      currentIndex == 3
+                                                          ? kActiveBlueColor
+                                                          : kCryBabyColor,
+                                                ),
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                  }
-                                ),
+                                      );
+                                    }),
                               ),
                               Positioned(
                                 top: 100,
                                 left: 105,
-                                child: Image.asset(
-                                  data.imagePath,
-                                  height: 200.h,
-                                  width: 202.w,
-                                  fit: BoxFit.fill,
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 500),
+                                  child: FadeTransition(
+                                    opacity: _isSwitching
+                                        ? Tween<double>(begin: 0.2, end: 1.0)
+                                            .animate(
+                                            CurvedAnimation(
+                                              parent: _animationController,
+                                              curve: Curves.easeInOut,
+                                            ),
+                                          )
+                                        : AlwaysStoppedAnimation(1.0),
+                                    child: Image.asset(
+                                      data.imagePath,
+                                      height: 200.h,
+                                      width: 202.w,
+                                      fit: BoxFit.fill,
+                                      key: ValueKey<int>(currentIndex),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ],
                           ),
+                        ),
+                        SizedBox(
+                          height: 30.h,
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -200,7 +238,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                           ),
                         ),
                         SizedBox(
-                          height: 30.h,
+                          height: 20.h,
                         ),
                         SizedBox(
                           width: 231.w,
@@ -237,20 +275,24 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                 )
               ],
             )),
+            SizedBox(
+              height: 15.h,
+            ),
             Visibility(
               visible: currentIndex == 3 ? true : false,
               child: CustomButton(
                 height: 58.h,
-                width: 350.w,
+                width: 310.w,
                 color: Color(0xff4476F6),
                 text: "Get Started",
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=> LoadingSCreen()));
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => LoadingSCreen()));
                 },
               ),
             ),
             SizedBox(
-              height: 30.h,
+              height: 10.h,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -262,8 +304,12 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                     child: TextButton(
                         onPressed: () {
                           setState(() {
-                            if (currentIndex == 4) {}
+                            myAngle -= 0.25;
+                            myLittleAnle += 0.25;
                             currentIndex--;
+                            pageController.previousPage(
+                                duration: const Duration(seconds: 2),
+                                curve: Curves.ease);
                           });
                         },
                         child: Text("Previous",
@@ -280,7 +326,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                         setState(() {
                           if (currentIndex < 3) {
                             currentIndex++;
-                            controller.nextPage(
+                            pageController.nextPage(
                                 duration: const Duration(seconds: 2),
                                 curve: Curves.ease);
                           }
@@ -329,3 +375,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 }
+
+
+

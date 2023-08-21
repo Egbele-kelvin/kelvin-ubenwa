@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:ubenwa_kelvin/features/dashboard/dashboard.dart';
 import 'package:ubenwa_kelvin/features/onboarding/onboarding_screen.dart';
-import 'package:ubenwa_kelvin/features/widget/final_loading_screen.dart';
-import 'package:ubenwa_kelvin/features/widget/loading_screen.dart';
-import 'package:ubenwa_kelvin/features/widget/test.dart';
 
 void main() {
   runApp(const MyApp());

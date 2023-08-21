@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ubenwa_kelvin/constants/color_constants.dart';
@@ -76,7 +75,7 @@ class _LoadingSCreenState extends State<LoadingSCreen>
               curve: Curves.easeInOut, // Set your desired curve
               top: _controller.value *
                   1000, // Adjust the top position based on your needs
-              left: 200,
+              left: 190.w,
 
               child: child!,
             );

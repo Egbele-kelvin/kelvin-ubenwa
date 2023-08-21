@@ -41,8 +41,8 @@ class DashBoardScreen extends StatelessWidget {
             ),
             Expanded(flex: 2, child: CustomDateContainer()),
             Padding(
-              padding: const EdgeInsets.only(
-                left: 15.0,
+              padding:  EdgeInsets.only(
+                left: 15.0.w,  
               ),
               child: Text(
                 "Today’s Overview",
@@ -52,9 +52,6 @@ class DashBoardScreen extends StatelessWidget {
                   color: kTextGrayColor02,
                 ),
               ),
-            ),
-            SizedBox(
-              height: 15.h,
             ),
             Expanded(
               flex: 2,
@@ -88,7 +85,7 @@ class DashBoardScreen extends StatelessWidget {
               ),
             ),
             SizedBox(
-              height: 15.h,
+              height: 10.h,
             ),
             Padding(
               padding: const EdgeInsets.only(left: 15.0),
